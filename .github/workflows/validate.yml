@@ -20,3 +20,7 @@ jobs:
         run: node scripts/validate-manifest.mjs
       - name: Parse plugin scripts
         run: node --check app.js
+      - name: Print catalog (CLI smoke test)
+        run: |
+          node scripts/print-catalog.mjs
+          node scripts/print-catalog.mjs --preamble
