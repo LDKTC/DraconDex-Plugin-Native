@@ -12,6 +12,7 @@
   --t2: #9090a8;
   --accent: #6366f1;
   --danger: #ef4444;
+  --ok: #4ade80;
   --r: 8px;
 }
 
@@ -64,64 +65,9 @@ body {
 main {
   flex: 1;
   overflow-y: auto;
-  padding: 14px;
+  padding: 20px 22px 28px;
+  max-width: 640px;
 }
-
-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-
-input {
-  flex: 1;
-  min-width: 110px;
-  padding: 7px 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  background: var(--raised);
-  color: var(--t1);
-  font: inherit;
-}
-
-input:focus { outline: none; border-color: var(--accent); }
-
-button {
-  padding: 7px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  background: var(--raised);
-  color: var(--t1);
-  font: inherit;
-  cursor: pointer;
-}
-
-button:hover { background: var(--hover); }
-
-#submit-btn {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
-
-ul { list-style: none; }
-
-li {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 10px;
-  margin-bottom: 6px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-}
-
-.note-text { flex: 1; min-width: 0; word-break: break-word; }
-.note-text p { margin-top: 4px; color: var(--t2); }
-
-.muted { color: var(--t2); }
 
 .notice,
 .error {
@@ -138,4 +84,68 @@ li {
 code {
   font-family: ui-monospace, monospace;
   color: var(--t1);
+}
+
+/* ── catalog viewer ──────────────────────────────────────────────────── */
+.cat-head { margin-bottom: 22px; }
+.cat-name { font-size: 20px; font-weight: 700; }
+.cat-tagline { margin-top: 4px; color: var(--accent); font-size: 13px; font-weight: 600; }
+.cat-desc { margin-top: 8px; color: var(--t2); line-height: 1.6; }
+
+.cat-section { margin-bottom: 26px; }
+.cat-h2 {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--t2);
+  margin-bottom: 10px;
+}
+.cat-h3 { font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+.cat-can::before { content: "✓ "; }
+.cat-cannot::before { content: "✕ "; }
+.cat-can { color: var(--ok); }
+.cat-cannot { color: var(--danger); }
+
+.cat-hint { color: var(--t2); line-height: 1.6; margin-bottom: 12px; }
+
+ul.cat-list { list-style: none; }
+
+.cat-list.cat-plain li {
+  padding: 6px 0 6px 16px;
+  border: none;
+  background: none;
+  position: relative;
+  color: var(--t2);
+  line-height: 1.55;
+  font-size: 12.5px;
+}
+.cat-list.cat-plain li::before {
+  content: "–";
+  position: absolute;
+  left: 0;
+  color: var(--t2);
+}
+
+.cat-feature {
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+}
+.cat-feature strong { display: block; }
+.cat-feature p { margin-top: 4px; color: var(--t2); line-height: 1.55; }
+
+.cat-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.cat-footer { margin-top: 4px; color: var(--t2); font-size: 11px; }
+
+/* Narrow window: stack the can/cannot columns instead of squeezing them. */
+@media (max-width: 560px) {
+  .cat-cols { grid-template-columns: 1fr; }
 }
