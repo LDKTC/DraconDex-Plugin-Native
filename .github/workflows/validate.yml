@@ -20,7 +20,7 @@ jobs:
         run: node scripts/validate-manifest.mjs
       - name: Parse plugin scripts
         run: |
-          for f in app.js catalog.js; do
+          for f in app.js catalog.js scripts/print-catalog.mjs; do
             echo "checking $f"
             node --check "$f"
           done
@@ -30,3 +30,7 @@ jobs:
       # real source of truth, catalog.json.
       - name: Check catalog.js matches catalog.json
         run: node scripts/check-catalog-sync.mjs
+      - name: Print catalog (CLI smoke test)
+        run: |
+          node scripts/print-catalog.mjs
+          node scripts/print-catalog.mjs --preamble
