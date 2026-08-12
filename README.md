@@ -73,23 +73,53 @@ nothing in it comes from a user or from the app at runtime. `catalogVersion`
 and `updated` are bumped by hand when the content changes; consumers are free
 to cache it indefinitely and re-fetch occasionally rather than on every use.
 
+### Why there's also a `catalog.js`
+
+This window doesn't actually `fetch('catalog.json')`, even though the two
+files sit side by side. A plugin window loads over `file://`, which Chromium
+treats as an opaque `null` origin and refuses **both** `fetch()` and
+`XMLHttpRequest` for outright — not a CORS misconfiguration, a hard "no" for
+that scheme, confirmed against a real installed plugin (`Failed to fetch`,
+every time). `catalog.js` carries the identical content as a plain
+`window.CATALOG = {...}` assignment instead, loaded as an ordinary
+`<script src>` — the same mechanism `style.css` and `app.js` already rely on,
+which browsers never subjected to that restriction.
+
+`catalog.json` stays the single real source of truth (and the only one the
+raw-GitHub-fetch use case above can use — sibling plugins parse it as pure
+JSON over HTTPS, never as executable JS). `catalog.js` is a generated,
+hand-kept copy for this window's own use;
+[`scripts/check-catalog-sync.mjs`](scripts/check-catalog-sync.mjs) (run in CI)
+fails the build if the two ever drift apart.
+
 ## Structure
 
 | File | Purpose |
 | --- | --- |
 | `dracondex-plugin.json` | Manifest: id `ai_native`, files. No tables, no panels, no permissions. |
 | `catalog.json` | The published catalog — see above. |
-| `index.html` + `app.js` | Renders `catalog.json` for a human. Plain `fetch('catalog.json')` — a same-directory file this plugin shipped itself, not `pluginApi.net`. |
+| `catalog.js` | The same content as `catalog.json`, as a `window.CATALOG = {...}` assignment — see [why](#why-theres-also-a-catalogjs). |
+| `index.html` + `app.js` | Renders `window.CATALOG` for a human. |
 | `style.css` | Mirrors the app's dark theme tokens. |
 | `scripts/validate-manifest.mjs` | Local manifest check. Not shipped — it isn't in `files`. |
+| `scripts/check-catalog-sync.mjs` | Fails if `catalog.js` and `catalog.json` disagree. Not shipped. |
 
 ## Developing
 
 ```bash
-node scripts/validate-manifest.mjs   # same rules the app enforces on install
-node --check app.js
-python3 -c "import json; json.load(open('catalog.json'))"   # or: node -e "JSON.parse(require('fs').readFileSync('catalog.json'))"
+node scripts/validate-manifest.mjs        # same rules the app enforces on install
+node --check app.js catalog.js
+node scripts/check-catalog-sync.mjs       # after editing catalog.json, regenerate catalog.js to match
 ```
+
+To regenerate `catalog.js` from `catalog.json` after an edit:
+
+```bash
+node -e "const fs=require('fs');fs.writeFileSync('catalog.js','window.CATALOG = '+fs.readFileSync('catalog.json','utf8').trimEnd()+';\n')"
+```
+
+(then restore the explanatory comment at the top of `catalog.js` by hand — it
+isn't part of the generated assignment).
 
 Then in DraconDex: **Settings → Plugin → Plugins**, paste this repo's link,
 confirm the preview. Reinstalling after a change means uninstalling first

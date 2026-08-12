@@ -19,4 +19,14 @@ jobs:
       - name: Validate manifest
         run: node scripts/validate-manifest.mjs
       - name: Parse plugin scripts
-        run: node --check app.js
+        run: |
+          for f in app.js catalog.js; do
+            echo "checking $f"
+            node --check "$f"
+          done
+      # catalog.js exists only because a file://-loaded plugin window can't
+      # fetch() a sibling file (see the comment at the top of catalog.js) —
+      # this is what stops its hand-kept copy from silently drifting from the
+      # real source of truth, catalog.json.
+      - name: Check catalog.js matches catalog.json
+        run: node scripts/check-catalog-sync.mjs

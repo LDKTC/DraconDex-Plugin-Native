@@ -10,6 +10,15 @@
 // baseline knowledge of this app, since a plugin sandbox can never read
 // another plugin's files or tables directly — see
 // https://github.com/LDKTC/App-DraconDex/blob/main/docs/PLUGINS.md
+//
+// This window itself does NOT fetch catalog.json, even though it's sitting
+// right next to it: a plugin window is loaded via file://, which Chromium
+// treats as an opaque "null" origin and refuses both fetch() and
+// XMLHttpRequest for outright (confirmed against a real installed plugin —
+// this isn't a theoretical CORS rule, it's "Failed to fetch" every time).
+// catalog.js — loaded as a normal <script src>, the same way style.css and
+// this file are — carries the identical content as a plain assignment
+// instead. Keep the two in sync with scripts/check-catalog-sync.mjs.
 
 document.getElementById('close-btn').onclick = () => window.close();
 
@@ -96,16 +105,11 @@ function render(catalog) {
   root.appendChild(renderFooter(catalog));
 }
 
-async function start() {
+function start() {
   try {
-    // A plain relative fetch of a file this plugin shipped itself — not
-    // window.pluginApi.net, which is only for origins a manifest declares.
-    // AI Native declares none: it doesn't need the network to do its job.
-    const res = await fetch('catalog.json');
-    if (!res.ok) throw new Error(`catalog.json: HTTP ${res.status}`);
-    const catalog = await res.json();
+    if (!window.CATALOG) throw new Error('catalog.js did not set window.CATALOG');
     loading.hidden = true;
-    render(catalog);
+    render(window.CATALOG);
   } catch (e) {
     showError(e);
   }
