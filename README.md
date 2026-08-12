@@ -10,6 +10,14 @@ features and of the `window.pluginApi` surface every plugin (including this
 one) runs inside. Nothing here is user data: there's nothing to type in, and
 uninstalling it deletes no tables, because it declares none.
 
+Prefer a terminal, or don't have DraconDex installed at all? `node
+scripts/print-catalog.mjs` prints the same catalog from the CLI, and `node
+scripts/print-catalog.mjs --preamble` prints the exact model-facing summary
+DraconDex-Plugin-Claude/-Ollama/-Codex compute from this file — from outside
+this app, in their own plugin windows — so that function's usage is visible
+and testable here too, without installing three other plugins to see it. See
+[Developing](#developing).
+
 > Requires **DraconDex 4.8.0+** to be *auto-installed* as a dependency (see
 > below). The plugin itself — the manifest, the window, `catalog.json` — works
 > on any version that supports plugins at all (4.0.0+).
@@ -82,6 +90,7 @@ to cache it indefinitely and re-fetch occasionally rather than on every use.
 | `index.html` + `app.js` | Renders `catalog.json` for a human. Plain `fetch('catalog.json')` — a same-directory file this plugin shipped itself, not `pluginApi.net`. |
 | `style.css` | Mirrors the app's dark theme tokens. |
 | `scripts/validate-manifest.mjs` | Local manifest check. Not shipped — it isn't in `files`. |
+| `scripts/print-catalog.mjs` | CLI viewer for `catalog.json`: prints it plain, or with `--preamble` prints the model-facing summary a chat plugin computes from it. Not shipped — it isn't in `files`. |
 
 ## Developing
 
@@ -89,6 +98,8 @@ to cache it indefinitely and re-fetch occasionally rather than on every use.
 node scripts/validate-manifest.mjs   # same rules the app enforces on install
 node --check app.js
 python3 -c "import json; json.load(open('catalog.json'))"   # or: node -e "JSON.parse(require('fs').readFileSync('catalog.json'))"
+node scripts/print-catalog.mjs               # CLI view of the catalog — no DraconDex required
+node scripts/print-catalog.mjs --preamble    # what a chat plugin's system-prompt preamble actually says
 ```
 
 Then in DraconDex: **Settings → Plugin → Plugins**, paste this repo's link,
