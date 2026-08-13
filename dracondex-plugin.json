@@ -3,5 +3,5 @@
   "name": "AI Native",
   "version": "1.0.0",
   "entry": "index.html",
-  "files": ["index.html", "app.js", "style.css", "catalog.json"]
+  "files": ["index.html", "app.js", "catalog.js", "style.css", "catalog.json"]
 }
